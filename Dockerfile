@@ -15,4 +15,4 @@ RUN git clone https://github.com/bfield1/dmft /home/triqs/dmft
 
 USER root
 
-cp -r /home/triqs/dmft/dmft/python_modules/dmft /usr/lib/python3/dist-packages/
+RUN cp -r /home/triqs/dmft/dmft/python_modules/dmft /usr/lib/python3/dist-packages/
