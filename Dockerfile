@@ -8,6 +8,7 @@ USER root
 RUN apt update -y
 RUN apt install -y python3-h5py
 
+USER triqs
 # Add dmft
 RUN git clone https://github.com/bfield1/dmft /home/triqs/dmft
 
