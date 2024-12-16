@@ -8,11 +8,11 @@ USER root
 RUN apt update -y
 RUN apt install -y python3-h5py
 
-RUN useradd -ms /bin/bash dmft
-USER dmft
-WORKDIR /home/dmft
+USER triqs
 
 # Add dmft
-RUN git clone https://github.com/bfield1/dmft /home/dmft/dmft
+RUN git clone https://github.com/bfield1/dmft /home/triqs/dmft
 
-ENV PYTHONPATH="/home/dmft/dmft/python_modules/"
+USER root
+
+cp -r /home/triqs/dmft/dmft/python_modules/dmft /usr/lib/python3/dist-packages/
