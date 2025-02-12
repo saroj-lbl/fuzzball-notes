@@ -13,8 +13,8 @@ spack:
     install_hash_length: 7
     build_jobs: 8
 
-packages:
-  ucx:
-    require: 'ucx +dm +dc +rc +ud +mlx5_dv +ib_hw_tm +rdmacm +verbs'
-  openmpi:
-    require: 'openmpi fabrics=ucx'
+  packages:
+    ucx:
+      require: 'ucx +dm +dc +rc +ud +mlx5_dv +ib_hw_tm +rdmacm +verbs'
+    openmpi:
+      require: 'openmpi fabrics=ucx'
