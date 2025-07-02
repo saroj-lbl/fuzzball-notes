@@ -1,0 +1,53 @@
+version: v1
+jobs:
+  triqs-test:
+    cwd: /data
+    image:
+      uri: docker://ghcr.io/saroj-lbl/fuzzball-notes:release
+      secret: secret://user/ghcr-lbl
+    mounts:
+      dmft-log:
+        location: /data
+    policy:
+      timeout:
+        execute: 30m0s
+    command:
+      - /bin/sh
+      - "-c"
+      - >-
+        python3 -u -m dmft.dmft -b 20 -u 13 -m 8 -n 1 -c 5000 -l 10 -w 200 -a
+        "archive_test.h5" -V 1 --bandwidth 26 kagome -t 1 --offset 1 --bins 300
+        --nk 2000
+    resource:
+      cpu:
+        cores: 2
+      memory:
+        size: 1GB
+  measurement-loop:
+    resource:
+      memory:
+        by-core: true
+        size: 1GB
+      cpu:
+        cores: 4
+        affinity: NUMA
+        threads: false
+      exclusive: false
+    policy:
+      timeout:
+        execute: 30m
+    requires:
+      - triqs-test
+    cwd: /data
+    mounts:
+      dmft-log:
+        location: /data
+    command:
+      - /bin/sh
+      - "-c"
+    image:
+      uri: docker://ghcr.io/saroj-lbl/fuzzball-notes:release
+      secret: secret://user/ghcr-lbl
+volumes:
+  dmft-log:
+    reference: volume://user/ephemeral

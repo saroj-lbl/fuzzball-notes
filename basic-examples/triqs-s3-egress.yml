@@ -1,0 +1,89 @@
+jobs:
+  triqs-test:
+    cwd: /data
+    name: triqs-test
+    image:
+      uri: docker://ghcr.io/saroj-lbl/fuzzball-notes:release
+      secret: secret://user/ghcr-lbl
+    mounts:
+      dmft-log:
+        location: /data
+    policy:
+      timeout:
+        execute: 30m0s
+    command:
+      - /bin/sh
+      - "-c"
+      - >-
+        python3 -u -m dmft.dmft -b 20 -u 13 -m 8 -n 1 -c 5000 -l 10 -w 200 -a
+        "archive_test.h5" -V 1 --bandwidth 26 kagome -t 1 --offset 1 --bins 300
+        --nk 2000
+    resource:
+      cpu:
+        cores: 8
+        affinity: NUMA
+      memory:
+        size: 1GB
+    multinode:
+      nodes: 1
+      implementation: openmpi
+  post-processing:
+    cwd: /data
+    name: post-processing
+    image:
+      uri: docker://ghcr.io/saroj-lbl/fuzzball-notes:release
+      secret: secret://user/ghcr-lbl
+    mounts:
+      dmft-log:
+        location: /data
+    command:
+      - /bin/sh
+      - "-c"
+      - sleep 300 && python3 -u -m dmft.record_post_proc "archive_test.h5"
+    requires:
+      - measurement-loop
+    resource:
+      cpu:
+        cores: 1
+      memory:
+        size: 4GB
+  measurement-loop:
+    cwd: /data
+    name: measurement-loop
+    image:
+      uri: docker://ghcr.io/saroj-lbl/fuzzball-notes:release
+      secret: secret://user/ghcr-lbl
+    mounts:
+      dmft-log:
+        location: /data
+    policy:
+      timeout:
+        execute: 30m0s
+    command:
+      - /bin/sh
+      - "-c"
+      - >-
+        python3 -u -m dmft.dmft -n 1 -c 5000 -l 10 -w 200 -a "archive_test.h5"
+        -d -p --spin --motmi 100 continue --newparams --substrate
+    requires:
+      - triqs-test
+    resource:
+      cpu:
+        cores: 8
+        affinity: NUMA
+      memory:
+        size: 1GB
+    multinode:
+      nodes: 1
+      implementation: openmpi
+version: v1
+volumes:
+  dmft-log:
+    name: dmft-log
+    egress:
+      - source:
+          uri: file://archive_test.h5
+        destination:
+          uri: s3://fbbucket0/archive_test.h5
+          secret: secret://user/aws-s3-secret
+    reference: volume://user/ephemeral

@@ -1,0 +1,27 @@
+version: v1
+volumes:
+  home:
+    name: home
+    reference: volume://user/homedir
+jobs:
+  filebrowser:
+    name: filebrowser
+    cwd: /data
+    image:
+      uri: docker://filebrowser/filebrowser
+    mounts:
+      home:
+        location: /data
+    policy:
+      timeout:
+        execute: 168h0m0s
+    command:
+      - /bin/sh
+      - "-c"
+      - >-
+        touch /data/filebrowser.db && /filebrowser config set --auth.method=noauth && /filebrowser
+    resource:
+      cpu:
+        cores: 1
+      memory:
+        size: 1GB
