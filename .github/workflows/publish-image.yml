@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: omb-gcc-openmpi4
+  IMAGE_NAME: saroj-lbl/omb-gcc-openmpi4
 
 jobs:
   build-and-push-image:
